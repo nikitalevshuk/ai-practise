@@ -39,6 +39,50 @@ async def transcribe_audio(file_path: str):
         except PermissionError:
             pass
 
+async def ask_assistant(question: str):
+    """
+    Функция принимает строчный вопрос и отсылает его к AI ASSISTANT, и возвращает ответ
+    1. Создаем поток(считай тоже самое что диалог)
+    2. Создаем сообщение в нашем потоке от лица user`a
+    3. Начинаем выполнять запрос
+    4. Каждые две секунды обновляем статус запроса и ждем пока запрос либо обломается либо
+    выполонится
+    5. Если все норм то берем из потока всю переписку и выхватываем последнее сообщение
+    6. Если с последним сообщением все ОК то возвращаем его
+    """
+    try:
+        thread = await openai_client.beta.threads.create()
+        thread_id = thread.id
+
+        await openai_client.beta.threads.messages.create(
+            thread_id=thread_id,
+            role="user",
+            content=f"{question}"
+        )
+
+        run = await openai_client.beta.threads.runs.create(
+            thread_id=thread_id,
+            assistant_id=bot_settings.OPENAI_ASSISTANT_ID
+        )
+
+        while run.status not in ("completed", "failed"):
+            await asyncio.sleep(2)
+            run = await openai_client.beta.threads.runs.retrieve(
+                thread_id=thread_id,
+                run_id=run.id
+            )
+
+        if run.status == "completed":
+            messages = await openai_client.beta.threads.messages.list(thread_id=thread_id)
+            last_message = messages.data[0]
+            if last_message.role == "assistant":
+                return last_message.content[0].text.value
+        else:
+            return "Ошибка: ассистент не смог обработать запрос."
+
+    except openai.OpenAIError as e:
+        return f"Ошибка OpenAI: {str(e)}"
+
 @dp.message(F.voice)
 async def voice_message_handler(message: Message):
     """
@@ -64,7 +108,9 @@ async def voice_message_handler(message: Message):
         temp_audio_path = temp_audio.name
 
     text = await transcribe_audio(temp_audio_path)
-    await message.answer(f"Ты сказал: {text}")
+
+    response = await ask_assistant(text)
+    await message.answer(f"Ассистент: {response}")
 
 @dp.message(CommandStart())
 async def start_handler(message: Message):
