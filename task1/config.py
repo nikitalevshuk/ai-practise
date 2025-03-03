@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     без load_dotenv() SettingsConfigDict() не найдет мой файл .env
     """
     BOT_TOKEN: str
+    OPENAI_API_KEY: str
 
-    model_config = SettingsConfigDict(env_file=".env")
+    class Config:
+        env_file = ".env"
 
 bot_settings = Settings()
