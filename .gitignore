@@ -1,3 +1,5 @@
 .idea
 .env
 task1/__pycache__/
+task1/handlers/__pycache__/
+task1/services/__pycache__/
