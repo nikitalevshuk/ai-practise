@@ -43,7 +43,7 @@ async def voice_message_handler(message: Message, bot: Bot):
     audio_path = await text_to_speech(text_response)
 
     audio_file = FSInputFile(audio_path)
-    await message.answer_voice(voice = audio_file)
+    await message.answer_voice(voice=audio_file)
     await asyncio.to_thread(os.remove, audio_path)
 
 def register_voice_handler(dp: Dispatcher):

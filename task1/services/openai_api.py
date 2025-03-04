@@ -56,18 +56,10 @@ async def ask_assistant(question: str):
             role="user",
             content=f"{question}"
         )
-
-        run = await openai_client.beta.threads.runs.create(
+        run = await openai_client.beta.threads.runs.create_and_poll(
             thread_id=thread_id,
             assistant_id=bot_settings.OPENAI_ASSISTANT_ID
         )
-
-        while run.status not in ("completed", "failed"):
-            await asyncio.sleep(2)
-            run = await openai_client.beta.threads.runs.retrieve(
-                thread_id=thread_id,
-                run_id=run.id
-            )
 
         if run.status == "completed":
             messages = await openai_client.beta.threads.messages.list(thread_id=thread_id)
