@@ -3,7 +3,7 @@ import openai
 import tempfile
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
-from aiogram.types import Message, Voice
+from aiogram.types import Message, FSInputFile
 import asyncio
 
 from config import bot_settings
@@ -83,6 +83,22 @@ async def ask_assistant(question: str):
     except openai.OpenAIError as e:
         return f"Ошибка OpenAI: {str(e)}"
 
+async def text_to_speech(response_text: str):
+    try:
+        response = await openai_client.audio.speech.create(
+            model = "tts-1",
+            voice = "alloy",
+            input=response_text
+        )
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_audio:
+            audio_path = temp_audio.name
+            temp_audio.write(response.read())
+
+            return audio_path
+    except openai.OpenAIError as e:
+        return None
+
 @dp.message(F.voice)
 async def voice_message_handler(message: Message):
     """
@@ -109,8 +125,12 @@ async def voice_message_handler(message: Message):
 
     text = await transcribe_audio(temp_audio_path)
 
-    response = await ask_assistant(text)
-    await message.answer(f"Ассистент: {response}")
+    text_response = await ask_assistant(text)
+    audio_path = await text_to_speech(text_response)
+
+    audio_file = FSInputFile(audio_path)
+    await message.answer_voice(voice = audio_file)
+    await asyncio.to_thread(os.remove, audio_path)
 
 @dp.message(CommandStart())
 async def start_handler(message: Message):
@@ -121,4 +141,4 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    (asyncio.run(main()))
