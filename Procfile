@@ -1,1 +1,1 @@
-worker: task1/main.py
+worker: python task1/main.py
