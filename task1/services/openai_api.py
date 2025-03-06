@@ -4,7 +4,7 @@ import os
 import openai
 import tempfile
 
-from task1.config import bot_settings
+from task1.config import settings
 from task1.logger import logger
 from task1.database.db import session_factory
 from task1.database.db_funcs import get_user_by_telegram_id, create_user
@@ -12,7 +12,7 @@ from task1.database.models import User
 
 from sqlalchemy import update
 
-openai_client = openai.AsyncClient(api_key=bot_settings.OPENAI_API_KEY)
+openai_client = openai.AsyncClient(api_key=settings.OPENAI_API_KEY)
 
 async def transcribe_audio(file_path: str):
     """
@@ -90,7 +90,7 @@ async def ask_assistant(user_telegram_id: str, question: str):
             logger.info("Запускаем run в потоке и ждем пока все выполнится...")
             run = await openai_client.beta.threads.runs.create_and_poll(
                 thread_id=thread_id,
-                assistant_id=bot_settings.OPENAI_ASSISTANT_ID
+                assistant_id=settings.OPENAI_ASSISTANT_ID
             )
         except openai.OpenAIError as e:
             logger.critical(f"Ошибка при отправлении сообщения и выполнении рана{str(e)}")

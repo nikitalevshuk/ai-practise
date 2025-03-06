@@ -21,16 +21,15 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from task1.database.db import Base
-import task1.database.models
 print(Base.metadata.tables.keys())
-from task1.config import db_settings
+from task1.config import settings
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-config.set_main_option("sqlalchemy.url", db_settings.DATABASE_URL_asyncpg)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL_asyncpg)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

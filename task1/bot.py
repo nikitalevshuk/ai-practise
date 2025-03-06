@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher
 
-from task1.config import bot_settings
+from task1.config import settings
 
-bot = Bot(bot_settings.BOT_TOKEN)
+bot = Bot(settings.BOT_TOKEN)
 dp = Dispatcher()
 

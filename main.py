@@ -1,6 +1,6 @@
 import asyncio
 from task1.handlers import register_handlers
-from bot import bot, dp
+from task1.bot import bot, dp
 from task1.logger import logger
 
 async def main():
