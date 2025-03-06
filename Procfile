@@ -1,0 +1,1 @@
+worker: task1/main.py
