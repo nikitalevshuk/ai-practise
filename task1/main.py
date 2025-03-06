@@ -5,7 +5,9 @@ from task1.logger import logger
 
 async def main():
     logger.info("Бот запущен")
+
     register_handlers(dp)
+
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

@@ -3,3 +3,4 @@
 task1/__pycache__/
 task1/handlers/__pycache__/
 task1/services/__pycache__/
+task1/database/__pycache__/
