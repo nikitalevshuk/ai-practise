@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
 
 from task1.services.openai_api import get_mood_from_image
+from task1.logger import logger
 
 async def image_message_handler(message: Message, bot: Bot):
     """
@@ -29,11 +30,6 @@ async def image_message_handler(message: Message, bot: Bot):
     result = await get_mood_from_image(base64_image)
     await message.answer(result)
     await asyncio.to_thread(os.remove, photo_path)
-
-
-
-
-
 
 
 def register_image_handler(dp: Dispatcher):
