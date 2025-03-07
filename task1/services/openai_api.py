@@ -264,7 +264,7 @@ async def get_mood_from_image(base64_image):
         ]
     )
 
-    result = response.choices[0]
+    result = response.choices[0].message.content
     logger.info(f"Запрос вернул {result}")
 
     return result
