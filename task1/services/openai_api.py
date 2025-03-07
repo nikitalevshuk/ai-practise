@@ -233,10 +233,40 @@ async def structured_output(moral_values_to_check: str):
     try:
         response_dict = json.loads(response.choices[0].message.function_call.arguments)
     except Exception as e:
-        logger.info("Ошибка пока парсили ответ от completions, возвращаем False")
+        logger.info(f"Ошибка пока парсили ответ от completions({str(e)}), возвращаем False")
         return False
 
     is_valid = response_dict["valid"]
 
     logger.info(f"Возвращаем значение валидности: {is_valid}")
     return is_valid
+
+async def get_mood_from_image(base64_image):
+    logger.info("Началась работа функции get_mood_from_image")
+
+    logger.info("Отправляем запрос...")
+    response = await openai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Определи настроение человека на фотографии",
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
+                    }
+                ]
+            }
+        ]
+    )
+
+    result = response.choices[0]
+    logger.info(f"Запрос вернул {result}")
+
+    return result
+
+

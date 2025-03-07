@@ -39,6 +39,6 @@ async def voice_message_handler(message: Message, bot: Bot):
 
 def register_voice_handler(dp: Dispatcher):
     """
-       Загружает обработчик голосовых сообщений в диспетчер
-       """
+    Загружает обработчик голосовых сообщений в диспетчер
+    """
     dp.message.register(voice_message_handler, F.voice)
