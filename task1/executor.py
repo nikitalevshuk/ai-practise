@@ -3,6 +3,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 from task1.services.amplitude_api import send_event_to_amplitude
+from task1.logger import logger
 
 executor = ThreadPoolExecutor(max_workers=5)
 
