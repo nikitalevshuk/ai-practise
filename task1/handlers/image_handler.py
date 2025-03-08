@@ -8,13 +8,13 @@ from aiogram.types import Message
 
 from task1.services.openai_api import get_mood_from_image
 from task1.logger import logger
+from task1.executor import executor_send_event
 
 async def image_message_handler(message: Message, bot: Bot):
     """
     Обработчик изображений
     """
     logger.info("Попали в image_handler")
-
     photo = message.photo[-1]
     file = await bot.get_file(photo.file_id)
 
@@ -31,6 +31,12 @@ async def image_message_handler(message: Message, bot: Bot):
     await message.answer(result)
     await asyncio.to_thread(os.remove, photo_path)
 
+    user_id = str(message.from_user.id)
+    await executor_send_event(
+        user_id=user_id,
+        event_name="Image response",
+        event_properties={"message": f"{result}"}
+    )
 
 def register_image_handler(dp: Dispatcher):
     """

@@ -7,6 +7,7 @@ from aiogram.types import Message, FSInputFile
 
 from task1.services.openai_api import transcribe_audio, text_to_speech, ask_assistant
 from task1.logger import logger
+from task1.executor import executor_send_event
 
 async def voice_message_handler(message: Message, bot: Bot):
     """
@@ -36,6 +37,12 @@ async def voice_message_handler(message: Message, bot: Bot):
     audio_file = FSInputFile(audio_path)
     await message.answer_voice(voice=audio_file)
     await asyncio.to_thread(os.remove, audio_path)
+
+    await executor_send_event(
+        user_id=user_id,
+        event_name="Voice response",
+        event_properties={"message": f"{text_response}"}
+    )
 
 def register_voice_handler(dp: Dispatcher):
     """

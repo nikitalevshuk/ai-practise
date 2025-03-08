@@ -188,6 +188,17 @@ typing-extensions = ">=4.12"
 tz = ["tzdata"]
 
 [[package]]
+name = "amplitude-analytics"
+version = "1.1.5"
+description = "The official Amplitude backend Python SDK for server-side instrumentation."
+optional = false
+python-versions = "<4,>=3.6"
+files = [
+    {file = "amplitude_analytics-1.1.5-py3-none-any.whl", hash = "sha256:da7db1985087d2b9ef0456115d116525888f416e174ef79b53e1532be7a0b3bd"},
+    {file = "amplitude_analytics-1.1.5.tar.gz", hash = "sha256:2836fcf88d75506a1f266a5582253fdf592e14fafaf5783017baeec2118369d4"},
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
@@ -1433,4 +1444,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.13"
-content-hash = "124b53cd0e5cad70e56a9e822a808d35631e6267f64b3aa9fd4516becf5596b7"
+content-hash = "c5faa10f420b27d8b0fda490e1769c26466cf4ebed44251e1fc58bffb873f134"

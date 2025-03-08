@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = os.getenv("BOT_TOKEN")
     OPENAI_API_KEY: str = os.getenv("OPENAI_ASSISTANT_ID")
     OPENAI_ASSISTANT_ID: str = os.getenv("OPENAI_API_KEY")
+    AMPLITUDE_API_KEY: str = os.getenv("AMPLITUDE_API_KEY")
 
     class Config:
         env_file = ".env"
