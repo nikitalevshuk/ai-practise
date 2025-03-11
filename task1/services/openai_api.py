@@ -3,6 +3,7 @@ import json
 import os
 import openai
 import tempfile
+import re
 
 from task1.config import settings
 from task1.logger import logger
@@ -150,17 +151,34 @@ async def ask_assistant(user_telegram_id: str, question: str):
         except Exception as e:
             logger.info(f"Ошибка в ходе проверки моральных ценностей: {str(e)}")
 
+        logger.info(f"run status = {run.status}")
         try:
             if run.status == "completed":
                 # достаем из потока последнее сообщение(оно по идее должно быть ответом ассистента)
                 messages = await openai_client.beta.threads.messages.list(thread_id=thread_id)
+
                 last_message = messages.data[0]
 
                 # если все четко то кидаем изменения в бд и отправляем текстовый ответ дальше
                 # в voice handler
                 if last_message.role == "assistant":
+
+                    # тут мы обрабатываем момент с тем чтобы узнать работал ли бот с файлом
+                    annotations = last_message.content[0].text.annotations
+                    file_ids = [annotation.file_citation.file_id for annotation in annotations if
+                                annotation.type == "file_citation"]
+
+                    if file_ids:
+                        files = [await openai_client.files.retrieve(file_id) for file_id in file_ids]
+                        filenames = [file.filename for file in files]
+                        logger.info(f"used files: {set(filenames)}")
+                        last_message.content[0].text.value = re.sub(r"【.*?†(.*?)】", r"(цитирование из \1)", last_message.content[0].text.value)
+                    else:
+                        logger.info("no files used")
+
                     logger.info("Все четко, коммитим БД и возвращаем текст!")
                     await db.commit()
+
                     return last_message.content[0].text.value
             else:
                 logger.critical("Ошибка: ассистент не смог обработать запрос, run status"
@@ -208,19 +226,21 @@ async def structured_output(moral_values_to_check: str):
     response = await openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role":"user", "content": f"Проверь следующие слова, они должны предоставлять"
-            f" ценности, например семья, честность и подобное: {moral_values_to_check}"}
+            {"role":"user", "content": f"Проверь следующие слова, они должны предоставлять моральыне"
+            f" ценности, например семья, честность и подобное, или например то что нравится человеку"
+            f": {moral_values_to_check}"}
         ],
         functions=[{
             "name":"values",
              "description": "Проверяет, содержатся ли в сообщении моральные ценности или то"
-                              " что любит человек",
+                              " что нравится человеку",
             "parameters": {
                    "type": "object",
                   "properties": {
                     "valid": {
                         "type": "boolean",
-                           "description": "True, если текст содержит моральные ценности, иначе False"
+                           "description": "True, если текст содержит моральные ценности или то, "
+                                          "что нравится человеку, иначе False"
                     }
                   },
                  "required": ["valid"]

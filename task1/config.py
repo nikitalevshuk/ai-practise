@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_ASSISTANT_ID")
     OPENAI_ASSISTANT_ID: str = os.getenv("OPENAI_API_KEY")
     AMPLITUDE_API_KEY: str = os.getenv("AMPLITUDE_API_KEY")
+    VECTOR_STORE_ID: str = os.getenv("VECTOR_STORE_ID")
 
     class Config:
         env_file = ".env"
