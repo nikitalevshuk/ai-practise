@@ -6,12 +6,10 @@ from task1.database.models import User
 async def create_user(
         db: AsyncSession,
         user_id: str,
-        thread_id: str | None = None,
 ):
 
     new_user = User(
         telegram_user_id=user_id,
-        thread_id=thread_id,
     )
 
     db.add(new_user)

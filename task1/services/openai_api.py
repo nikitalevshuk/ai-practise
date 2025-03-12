@@ -12,6 +12,7 @@ from task1.database.db_funcs import get_user_by_telegram_id, create_user
 from task1.database.models import User
 
 from sqlalchemy import update
+from aiogram.fsm.context import FSMContext
 
 openai_client = openai.AsyncClient(api_key=settings.OPENAI_API_KEY)
 
@@ -36,7 +37,7 @@ async def transcribe_audio(file_path: str):
     finally:
         await asyncio.to_thread(os.remove, file_path)
 
-async def ask_assistant(user_telegram_id: str, question: str):
+async def ask_assistant(user_telegram_id: str, question: str, state:FSMContext):
     """
     Функция принимает строчный вопрос и отсылает его к AI ASSISTANT, который проверяет сообщение
     на присутствие информации о моральных ценностях пользователя. Если моральные ценности
@@ -69,17 +70,16 @@ async def ask_assistant(user_telegram_id: str, question: str):
             logger.critical(f"Ошибка в ходе создания пользователя: {str(e)}")
             return False
 
-        thread_id = user.thread_id
+        state_data = await state.get_data()
+        thread_id = state_data.get("thread_id")
 
         if not thread_id:
             logger.info(f"У этого пользователя({user_telegram_id}) нет потока, создаем!")
-            try:
-                thread = await openai_client.beta.threads.create()
-                user.thread_id, thread_id = thread.id, thread.id
-                logger.info("Поток создан")
-            except openai.OpenAIError as e:
-                logger.info(f"Ошибка в ходе создания потока: {str(e)}")
-                return False
+
+            thread = await openai_client.beta.threads.create()
+            thread_id = thread.id
+
+            await state.update_data(thread_id=thread_id)
 
         try:
             logger.info(f"Закидываем сообщение в поток, {question}")
