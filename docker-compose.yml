@@ -1,6 +1,22 @@
 services:
+  bot:
+    build: .
+    container_name: bot
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
+
   redis:
     image: redis:latest
+    platform: linux/amd64
     container_name: redis
     restart: always
     ports:
@@ -8,7 +24,34 @@ services:
     volumes:
       - redis_data:/data
     command: ["redis-server", "--save", "10", "1", "--loglevel", "warning"]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:15
+    container_name: db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_ai:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
 volumes:
   redis_data:
     driver: local
+  postgres_ai:
+    driver: local
+
