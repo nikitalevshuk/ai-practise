@@ -1,11 +1,14 @@
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import Redis, RedisStorage
+from aiogram.fsm.storage.redis import RedisStorage, Redis
 
-
+from task1.logger import logger
 from task1.config import settings
 
-redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
-redis_storage = RedisStorage(redis=redis)
+logger.info(settings.REDIS_URL)
+redis_client = Redis.from_url(settings.REDIS_URL)
+logger.info(redis_client)
+redis_storage = RedisStorage(redis=redis_client)
+logger.info(redis_storage)
 
 bot = Bot(settings.BOT_TOKEN)
 dp = Dispatcher(storage=redis_storage)

@@ -4,12 +4,13 @@ import tempfile
 
 from aiogram import F, Dispatcher, Bot
 from aiogram.types import Message, FSInputFile
+from aiogram.fsm.context import FSMContext
 
 from task1.services.openai_api import transcribe_audio, text_to_speech, ask_assistant
 from task1.logger import logger
 from task1.executor import executor_send_event
 
-async def voice_message_handler(message: Message, bot: Bot):
+async def voice_message_handler(message: Message, bot: Bot, state: FSMContext):
     """
     Обработчик голосовых сообщений
 
@@ -30,7 +31,7 @@ async def voice_message_handler(message: Message, bot: Bot):
     text = await transcribe_audio(temp_audio_path)
 
     user_id = str(message.from_user.id)
-    text_response = await ask_assistant(user_id, text)
+    text_response = await ask_assistant(user_id, text, state)
 
     audio_path = await text_to_speech(text_response)
 

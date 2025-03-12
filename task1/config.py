@@ -16,8 +16,7 @@ class Settings(BaseSettings):
     OPENAI_ASSISTANT_ID: str = os.getenv("OPENAI_API_KEY")
     AMPLITUDE_API_KEY: str = os.getenv("AMPLITUDE_API_KEY")
     VECTOR_STORE_ID: str = os.getenv("VECTOR_STORE_ID")
-    REDIS_PORT: str = os.getenv("REDIS_PORT")
-    REDIS_HOST: str = os.getenv("REDIS_HOST")
+    REDIS_URL: str = os.getenv("REDIS_URL")
 
     class Config:
         env_file = ".env"
