@@ -3,18 +3,17 @@ FROM python:3.13
 WORKDIR /app
 
 # Устанавливаем Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    export PATH="/root/.local/bin:$PATH"
-
-# Указываем переменную среды для PATH
+RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="/root/.local/bin:$PATH"
 
 # Копируем файлы проекта
 COPY pyproject.toml poetry.lock ./
 
-# Устанавливаем зависимости
-RUN poetry install --no-root
+# Устанавливаем зависимости без создания виртуального окружения
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-root --no-interaction
 
+# Копируем все файлы проекта
 COPY . /app/
 
-CMD ["poetry", "run", "python", "main.py"]
+CMD ["python", "main.py"]
